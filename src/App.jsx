@@ -1,24 +1,45 @@
+import { useState } from "react";
+
 function App() {
+  const [openSection, setOpenSection] = useState({
+    taskList: false,
+    tasks: true,
+    completed: true,
+  })
+
+  function toggleTaskTable(section) {
+    setOpenSection((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }))
+  }
+
   return (
     <div className="app">
       <div className="task-container">
         <h1>Task list with Priority</h1>
-        <button className="close-button">+</button>
-        <TaskForm />
+        <button className={`close-button ${openSection.taskList ? "open" : ""}`} onClick={()=>toggleTaskTable("taskList")}>+</button>
+        {openSection.taskList && <TaskForm/>}
       </div>
       <div className="task-container">
         <h2>Tasks:</h2>
-        <button className="close-button">+</button>
-        <div className="sort-controls">
-          <button className="sort-button">By Date</button>
-          <button className="sort-button">By Priority</button>
-        </div>
-        <TaskList/>
+        <button className={`close-button ${openSection.tasks ? "open" : ""}`} onClick={()=>toggleTaskTable("tasks")}>+</button>
+        {
+          openSection.tasks && (
+            <>
+            <div className="sort-controls">
+              <button className="sort-button">By Date</button>
+              <button className="sort-button">By Priority</button>
+            </div>
+            <TaskList/>
+            </>
+          )
+        }
       </div>
       <div className="completed-task-container">
         <h2>Completed Tasks</h2>
-        <button className="close-button">+</button>
-        <CompletedTaskList />
+        <button className={`close-button ${openSection.completed ? "open" : ""}`} onClick={()=>toggleTaskTable("completed")}>+</button>
+        {openSection.completed && <CompletedTaskList />}
       </div>
       <Footer />
     </div>
@@ -28,7 +49,7 @@ function App() {
 function TaskForm(){
   return (
     <form action="" className="task-form">
-      <input type="text" value={""} placeholder="task title" required/>
+      <input type="text" value={""} placeholder="Task title" required/>
       <select value={""} required>
         <option value="High">High</option>
         <option value="Medium">Medium</option>
