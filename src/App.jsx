@@ -7,6 +7,8 @@ function App() {
     completed: true,
   })
 
+  const [tasks, setTasks] = useState([])
+
   function toggleTaskTable(section) {
     setOpenSection((prev) => ({
       ...prev,
@@ -14,12 +16,18 @@ function App() {
     }))
   }
 
+  function addTask(task) {
+    setTasks([...tasks, {...task, completed: false, id: Date.now() }]);
+  }
+
+  console.log(tasks);
+
   return (
     <div className="app">
       <div className="task-container">
         <h1>Task list with Priority</h1>
         <button className={`close-button ${openSection.taskList ? "open" : ""}`} onClick={()=>toggleTaskTable("taskList")}>+</button>
-        {openSection.taskList && <TaskForm/>}
+        {openSection.taskList && <TaskForm addTask={addTask}/>}
       </div>
       <div className="task-container">
         <h2>Tasks:</h2>
@@ -46,16 +54,30 @@ function App() {
   );
 }
 
-function TaskForm(){
+function TaskForm({addTask}){
+  const [title, setTitle] = useState("");
+  const [priority, setPriorty] = useState("Low");
+  const [deadlne, setDeadlne] = useState(""); 
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (title.trim() && deadlne) {
+      addTask({title, priority, deadlne});
+      setTitle("");
+      setPriorty("Low");
+      setDeadlne("");
+    }
+  }
+
   return (
-    <form action="" className="task-form">
-      <input type="text" value={""} placeholder="Task title" required/>
-      <select value={""} required>
+    <form action="" className="task-form" onSubmit={handleSubmit}>
+      <input type="text" value={title} placeholder="Task title" required onChange={(e) => setTitle(e.target.value)}/>
+      <select value={priority} required onChange={(e)=>setPriorty(e.target.value)}>
         <option value="High">High</option>
         <option value="Medium">Medium</option>
         <option value="Low">Low</option>
       </select>
-      <input type="datetime-local" value={""} required/>
+      <input type="datetime-local" value={deadlne} required onChange={(e)=>setDeadlne(e.target.value)} />
       <button type="submit">Add Task</button>
     </form>
   )
