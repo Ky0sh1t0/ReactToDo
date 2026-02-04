@@ -20,6 +20,17 @@ function App() {
     setTasks([...tasks, {...task, completed: false, id: Date.now() }]);
   }
 
+  function makeComplete(id) {
+    setTasks(tasks.map(task => task.id === id ? {...task, completed: true} : task))
+  }
+
+  function deleteTask(id) {
+    setTasks(tasks.filter(task=>task.id !== id));
+  }
+
+  const activeTasks = tasks.filter(task => !task.completed);
+  const completedTasks = tasks.filter(task => task.completed);
+
   console.log(tasks);
 
   return (
@@ -39,7 +50,7 @@ function App() {
               <button className="sort-button">By Date</button>
               <button className="sort-button">By Priority</button>
             </div>
-            <TaskList/>
+            <TaskList activeTasks={activeTasks} deleteTask={deleteTask} makeComplete={makeComplete}/>
             </>
           )
         }
@@ -47,7 +58,7 @@ function App() {
       <div className="completed-task-container">
         <h2>Completed Tasks</h2>
         <button className={`close-button ${openSection.completed ? "open" : ""}`} onClick={()=>toggleTaskTable("completed")}>+</button>
-        {openSection.completed && <CompletedTaskList />}
+        {openSection.completed && <CompletedTaskList completedTasks={completedTasks} deleteTask={deleteTask}/>}
       </div>
       <Footer />
     </div>
@@ -77,38 +88,47 @@ function TaskForm({addTask}){
         <option value="Medium">Medium</option>
         <option value="Low">Low</option>
       </select>
-      <input type="datetime-local" value={deadlne} required onChange={(e)=>setDeadlne(e.target.value)} />
+      <input type="date" value={deadlne} required onChange={(e)=>setDeadlne(e.target.value)} />
       <button type="submit">Add Task</button>
     </form>
   )
 }
 
-function TaskList() {
+function TaskList({activeTasks, deleteTask, makeComplete}) {
   return (
     <ul className="task-list">
-      <TaskItem />
+      {
+        activeTasks.map(task=> <TaskItem task={task} key={task.id} deleteTask={deleteTask} makeComplete={makeComplete}/>)
+      }
     </ul>
   )
 }
 
-function CompletedTaskList() {
+function CompletedTaskList({completedTasks, deleteTask}) {
   return (
     <ul className="completed-task-list">
-      <TaskItem />
+      {
+        completedTasks.map(task => <TaskItem task={task} key={task.id} deleteTask={deleteTask}/>)
+      }
     </ul>
   )
 }
 
-function TaskItem() {
+function TaskItem({task, deleteTask, makeComplete}) {
+
   return (
-    <li className={`task-item`}>
+    <li className={`task-item ${task.priority.toLowerCase()}`}>
       <div className="task-info">
-        <div>Title <strong>Medium</strong></div>
-        <div className="task-deadline">Due: {new Date().toLocaleString()}</div>
+        <div>{task.title} <strong>{task.priority}</strong></div>
+        <div className="task-deadline">Due: {new Date(task.deadlne).toLocaleDateString()}</div>
       </div>
       <div className="task-buttons">
-        <button className="complete-button ">Complete</button>
-        <button className="delete-button">Delete</button>
+        {
+          !task.completed && (
+            <button className="complete-button" onClick={()=>makeComplete(task.id)}>Complete</button>
+          ) 
+        }
+        <button className="delete-button" onClick={()=>deleteTask(task.id)}>Delete</button>
       </div>
     </li>
   )

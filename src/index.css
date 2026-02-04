@@ -127,7 +127,7 @@ h2 {
 
 .task-form input[type="text"],
 .task-form select,
-.task-form input[type="datetime-local"] {
+.task-form input[type="date"] {
   margin: 0 0 16px 0;
   padding: 12px;
   border-radius: 8px;
